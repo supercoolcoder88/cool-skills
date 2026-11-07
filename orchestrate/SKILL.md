@@ -13,16 +13,24 @@ not write the implementation yourself.
 
 ## 1. Split the work and write specs
 
-Take each numbered item or bullet from the user's request as one subtask. Merge
-items only when they cannot be done separately; split an item only when it is
-clearly several independent changes. Keep the user's numbering so the report maps
-back to their list.
+Take each numbered item or bullet from the user's request as one subtask by
+default. You may merge several items into one subtask, handled by a single
+implementer, when you judge it worth it: they cannot be done separately, they
+touch the same files or code paths closely enough that separate implementers
+would conflict, one is too small to justify its own subagent, or they share so
+much context that one implementer would do them better together. Do not merge
+just to reduce the number of subagents when the items are independent and
+substantial. Split an item only when it is clearly several independent changes.
+Keep the user's numbering so the report maps back to their list; a merged
+subtask carries all of its items' numbers (for example `2+3`).
 
 Before writing specs, read enough of the codebase to ground them: the relevant
 files, existing conventions, the test framework, and how tests are run. Then write
 one spec per subtask containing:
 
-- **Goal**: the user's item quoted verbatim, followed by what "done" means.
+- **Goal**: the user's item quoted verbatim, followed by what "done" means. For
+  a merged subtask, quote every item it covers, with its number, and say why
+  they were merged.
 - **Context**: repository path, the files and symbols involved, and relevant
   conventions (naming, error handling, style, test layout).
 - **Scope**: the files the subagent may change, and what is out of scope.
@@ -147,7 +155,8 @@ Start with a table, one row per subtask in the user's order:
 | # | Subtask | Verdict | Fix rounds | Tests added | Files changed |
 | --- | --- | --- | --- | --- | --- |
 
-Verdict is `Accepted` or `Unresolved: <reason>`. Then, for each accepted
+Verdict is `Accepted` or `Unresolved: <reason>`. A merged subtask gets one row
+under its combined number (for example `2+3`). Then, for each accepted
 subtask, include the implementer's explain-work walkthrough (corrected if your
 review found it inaccurate) under a heading with the subtask's number and name.
 Then give the deslop subagent's summary, noting any edits you reverted. End
