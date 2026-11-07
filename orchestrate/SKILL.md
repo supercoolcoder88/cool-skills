@@ -1,6 +1,7 @@
 ---
 name: orchestrate
-description: Orchestrate a multi-part task by writing a spec per subtask, delegating each subtask to its own test-first implementation subagent, then reviewing every implementation and sending it back for fixes until it meets the spec. Use only when the user explicitly asks to orchestrate, or asks you to complete a set of tasks given as a numbered list or bulleted dot points. Do not invoke for a single task or on your own initiative.
+description: Orchestrate a multi-part task by writing a spec per subtask, delegating each subtask to its own test-first implementation subagent, then reviewing every implementation and sending it back for fixes until it meets the spec. Use only when the user explicitly asks to orchestrate; do not invoke on your own initiative.
+disable-model-invocation: true
 ---
 
 # Orchestrate
