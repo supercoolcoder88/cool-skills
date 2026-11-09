@@ -45,20 +45,33 @@ before spawning. Otherwise choose a sensible default and record it in the spec.
 
 ### Order and parallelism
 
-Map dependencies between subtasks. Run independent subtasks in parallel; run a
-dependent subtask only after the subtask it depends on has passed review, and
-include the accepted interface in its spec. If parallel subtasks would edit the
-same files, either sequence them or give each its own isolated worktree (Claude
-Code: `isolation: "worktree"`) and merge the results yourself afterwards.
+Decide for each subtask whether it can run alongside others; do not default to
+running them one at a time. Map dependencies between subtasks and group them
+into **waves**: a wave is every subtask whose dependencies have all passed
+review. Subtasks in the same wave run in parallel. A dependent subtask waits for
+a later wave, and its spec includes the interface accepted in review.
+
+Sequence two subtasks only when there is a real reason: one consumes the
+other's output or interface, or they would edit the same files and isolation
+is not worth it. Shared files alone are not a reason to sequence; you can
+instead give each its own isolated worktree (Claude Code: `isolation:
+"worktree"`) and merge the results yourself afterwards.
+
+Before spawning, state the plan briefly: the waves, which subtasks are in each,
+and why each sequenced subtask waits.
 
 ## 2. Spawn one implementer per subtask
 
 For N subtasks, spawn N subagents, one per subtask, each with a **fresh
-context**:
+context**. Spawn every subtask in a wave **at once**, before waiting on or
+reviewing any of them:
 
 - Claude Code: the Agent tool with a non-fork type such as `general-purpose`.
   Never use `fork`; implementers should work from the spec, not this
   conversation. Give each a short name so you can message it again later.
+  For a wave, put all its Agent calls in a single message and leave them in
+  the background (the default; do not set `run_in_background: false`), so
+  they run concurrently. You are notified as each one finishes.
 - Codex or other tools: spawn a new subagent/thread that does not share this
   conversation's history.
 
@@ -96,6 +109,12 @@ were not independent.
 
 ## 3. Review each implementation
 
+Review each implementer as soon as it reports, while the rest of its wave keeps
+running; send fixes right away rather than waiting for the whole wave. Start
+the next wave as soon as its dependencies are accepted. When subtasks share a
+worktree, run the test command yourself only once the others touching it have
+reported, or scope it to the subtask's own tests.
+
 Treat an implementer's report as a claim, not a conclusion. For each subtask:
 
 1. Read the actual diff of the files it changed, not just its summary.
@@ -127,6 +146,10 @@ Once every subtask is accepted, merge any worktree results, then run the full
 relevant test suite, lint, and type checks across all changes together, since
 subtasks that pass alone can conflict. If an integration failure traces to a
 subtask, send it back to that implementer as a fix round.
+
+After the full suite passes, remove each merged worktree and its branch
+(`git worktree remove <path>` then `git branch -d <branch>`). Keep any worktree
+whose subtask is unresolved so the user can inspect it.
 
 ## 5. Deslop
 
